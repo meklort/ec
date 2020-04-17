@@ -11,8 +11,11 @@ void board_init(void) {
 
 void board_event(void) {
     if (main_cycle == 0) {
-        if (power_state == POWER_STATE_S0 || power_state == POWER_STATE_S3 || power_state == POWER_STATE_DS3) {
-            // System is on
+        if (power_state == POWER_STATE_S0) {
+            // System is on, CPU running
+        } else if (power_state == POWER_STATE_S3 || power_state == POWER_STATE_DS3) {
+            // System is suspended, sleep EC
+            PCON |= 1;
         } else if (gpio_get(&ACIN_N)) {
             // Power off VDD3 if system should be off
             gpio_set(&XLP_OUT, 0);
