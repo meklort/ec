@@ -67,9 +67,9 @@ void gpio_init() {
     // WLAN_PWR_EN
     GPCRA3 = GPIO_OUT;
     // NC
-    GPCRA4 = GPIO_IN;
+    GPCRA4 = GPIO_OUT;
     // NC
-    GPCRA5 = GPIO_IN;
+    GPCRA5 = GPIO_OUT;
     // PCH_PWROK_EC
     GPCRA6 = GPIO_OUT;
     // PCH_DPWROK_EC
@@ -87,9 +87,9 @@ void gpio_init() {
     // SWI#
     GPCRB5 = GPIO_OUT;
     // NC
-    GPCRB6 = GPIO_IN;
+    GPCRB6 = GPIO_OUT;
     // NC
-    GPCRB7 = GPIO_IN;
+    GPCRB7 = GPIO_OUT;
     // ALL_SYS_PWRGD
     GPCRC0 = GPIO_IN;
     // SMB_CLK_EC
@@ -101,7 +101,7 @@ void gpio_init() {
     // CNVI_DET#
     GPCRC4 = GPIO_IN | GPIO_UP;
     // NC
-    GPCRC5 = GPIO_IN;
+    GPCRC5 = GPIO_OUT;
     // PM_PWROK
     GPCRC6 = GPIO_OUT;
     // LED_ACIN
@@ -185,7 +185,7 @@ void gpio_init() {
     // SUSB#_PCH
     GPCRH6 = GPIO_IN;
     // NC
-    GPCRH7 = GPIO_IN;
+    GPCRH7 = GPIO_OUT;
     // BAT_DET
     GPCRI0 = GPIO_ALT;
     // BAT_VOLT
@@ -197,7 +197,7 @@ void gpio_init() {
     // TOTAL_CUR
     GPCRI4 = GPIO_ALT;
     // NC
-    GPCRI5 = GPIO_IN;
+    GPCRI5 = GPIO_OUT;
     // EC_SMD_EN#
     GPCRI6 = GPIO_IN;
     // MODEL_ID
