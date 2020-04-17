@@ -1,3 +1,5 @@
+#include <8051.h>
+
 #include <board/board.h>
 #include <board/gctrl.h>
 #include <board/gpio.h>
