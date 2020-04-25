@@ -150,8 +150,8 @@ bool kbscan_press(uint16_t key, bool pressed, uint8_t * layer) {
                             kbc_scancode(&KBC, K_LEFT_SUPER, true);
                             kbc_scancode(&KBC, K_P, true);
                             kbc_scancode(&KBC, K_P, false);
-                        } else {
                             kbc_scancode(&KBC, K_LEFT_SUPER, false);
+                        } else {
                         }
                     }
                     break;
