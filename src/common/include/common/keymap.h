@@ -50,6 +50,8 @@ uint16_t keymap_translate(uint16_t key);
 
 // Hotkeys
 
+#define K_NEXT_TRACK (K_E0 | 0x4D)
+#define K_PREV_TRACK (K_E0 | 0x15)
 #define K_PLAY_PAUSE (K_E0 | 0x34)
 #define K_MUTE (K_E0 | 0x23)
 #define K_VOLUME_DOWN (K_E0 | 0x21)
