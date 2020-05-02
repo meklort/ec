@@ -2,6 +2,7 @@
 #define _BOARD_BATTERY_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Types */
 #define SBS_BATTERY_STRING_BLOCK_SIZE   (32u) /* 1 length byte and 31 char bytes */
@@ -52,6 +53,16 @@ typedef struct {
 #define SBS_CHARGER_CHARGING_VOLTAGE    (0x15u) /* The desired charging voltage */
 #define SBS_CHARGER_INPUT_CURRENT       (0x3Fu) /* Mfg1: The maximium input current to pull from the power adapter. */
 
+
+typedef struct {
+    uint16_t design_capacity;
+} battery_information_t;
+
+typedef struct
+{
+    uint16_t cycle_count;
+} battery_status_t;
+
 extern uint16_t battery_temp;
 extern uint16_t battery_voltage;
 extern uint16_t battery_current;
@@ -61,10 +72,22 @@ extern uint16_t battery_full_capacity;
 extern uint16_t battery_status;
 extern uint16_t battery_design_capacity;
 extern uint16_t battery_design_voltage;
+extern uint16_t battery_cycle_count;
+extern uint16_t battery_serial;
+
+extern sbs_string_t battery_manufacturer;
+extern uint16_t battery_serial;
+extern sbs_string_t battery_device;
+extern sbs_string_t battery_type;
+extern uint16_t battery_cycle_count;
+extern bool battery_present;
+
 
 int battery_charger_disable(void);
 int battery_charger_enable(void);
 void battery_event(void);
 void battery_debug(void);
+
+void battery_init_information(void);
 
 #endif // _BOARD_BATTERY_H
