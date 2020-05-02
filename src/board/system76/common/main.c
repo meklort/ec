@@ -77,8 +77,8 @@ void main(void) {
     gpio_set(&SB_KBCRST_N, true);
     // Allow backlight to be turned on
     gpio_set(&BKL_EN, true);
-    // Enable camera
-    gpio_set(&CCD_EN, true);
+    // Default to camera disabled
+    gpio_set(&CCD_EN, false);
     // Enable wireless
     gpio_set(&BT_EN, true);
     gpio_set(&WLAN_EN, true);
