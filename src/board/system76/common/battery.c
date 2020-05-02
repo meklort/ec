@@ -82,6 +82,59 @@ uint16_t battery_status = 0;
 uint16_t battery_design_capacity = 0;
 uint16_t battery_design_voltage = 0;
 
+sbs_string_t battery_manufacturer = { 0 };
+uint16_t battery_serial = 0;
+sbs_string_t battery_device = { 0 };
+sbs_string_t battery_type = { 0 };
+uint16_t battery_cycle_count = 0;
+bool battery_present = false;
+
+void battery_read_string(sbs_string_t *str, uint8_t address)
+{
+    int res = 0;
+    res = smbus_read_bytes(BATTERY_ADDRESS, address, (char *)str, SBS_BATTERY_STRING_BLOCK_SIZE);
+    if (res < 0) {
+        str->len = 0;
+        str->str[0] = 0;
+    }
+    else if(str->len < sizeof(str->str))
+    {
+        str->str[str->len] = 0;
+    }
+    else
+    {
+        // Invalid length.
+        str->str[0] = 0;
+    }
+}
+
+void battery_init_information(void)
+{
+    int res = 0;
+
+    res = smbus_read(BATTERY_ADDRESS, SBS_BATTERY_SERIAL_NUMBER, &battery_serial);
+    if (0 <= res) {
+        battery_present = true;
+        battery_read_string(&battery_manufacturer, SBS_BATTERY_MANUFACTURER_NAME);
+        battery_read_string(&battery_device, SBS_BATTERY_DEVICE_NAME);
+        battery_read_string(&battery_type, SBS_BATTERY_DEVICE_CHEMISTRY);
+
+        #define command(N, V) { \
+            res = smbus_read(BATTERY_ADDRESS, V, &N); \
+            if (res < 0) { \
+                N = 0; \
+                battery_present = false; \
+            } \
+        }
+
+        command(battery_design_capacity, SBS_BATTERY_DESIGN_CAPACITY);
+        command(battery_design_voltage, SBS_BATTERY_DESIGN_VOLTAGE);
+        command(battery_full_capacity, SBS_BATTERY_FULL_CAPACITY);
+
+        #undef command
+    }
+}
+
 void battery_event(void) {
     int res = 0;
 
@@ -92,15 +145,16 @@ void battery_event(void) {
         } \
     }
 
-    command(battery_temp, 0x08);
-    command(battery_voltage, 0x09);
-    command(battery_current, 0x0A);
-    command(battery_charge, 0x0D);
-    command(battery_remaining_capacity, 0x0F);
-    command(battery_full_capacity, 0x10);
-    command(battery_status, 0x16);
-    command(battery_design_capacity, 0x18);
-    command(battery_design_voltage, 0x19);
+    // Battery Status
+    command(battery_voltage, SBS_BATTERY_VOLTAGE);
+    command(battery_current, SBS_BATTERY_CURRENT);
+    command(battery_charge, SBS_BATTERY_RELATIVE_CHARGE);
+    command(battery_status, SBS_BATTERY_STATUS);
+
+    // Externded Status
+    command(battery_temp, SBS_BATTERY_TEMPERATURE);
+    command(battery_remaining_capacity, SBS_BATTERY_REMAINING_CAPACITY);
+    command(battery_cycle_count, SBS_BATTERY_CYCLE_COUNT);
 
     #undef command
 }
@@ -140,4 +194,9 @@ void battery_debug(void) {
     command(ProchotStatus, CHARGER_ADDRESS, 0x3A);
 
     #undef command
+
+    DEBUG("Manufacturer: %s\n", battery_manufacturer.str);
+    DEBUG("Device: %s\n", battery_device.str);
+    DEBUG("Type: %s\n", battery_type.str);
+    DEBUG("Serial: %04X\n", battery_serial);
 }
