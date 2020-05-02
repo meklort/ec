@@ -1,4 +1,5 @@
 #include <board/smbus.h>
+#include <board/battery.h>
 #include <common/debug.h>
 
 #define BATTERY_ADDRESS 0x0B
@@ -28,15 +29,15 @@ int battery_charger_disable(void) {
     );
 
     // Disable charge current
-    res = smbus_write(CHARGER_ADDRESS, 0x14, 0);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_CURRENT, 0);
     if (res < 0) return res;
 
     // Disable charge voltage
-    res = smbus_write(CHARGER_ADDRESS, 0x15, 0);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_VOLTAGE, 0);
     if (res < 0) return res;
 
     // Disable input current
-    res = smbus_write(CHARGER_ADDRESS, 0x3F, 0);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, 0);
     if (res < 0) return res;
 
     return 0;
@@ -49,15 +50,15 @@ int battery_charger_enable(void) {
     if (res < 0) return res;
 
     // Set charge current in mA
-    res = smbus_write(CHARGER_ADDRESS, 0x14, CHARGER_CHARGE_CURRENT);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_CURRENT, CHARGER_CHARGE_CURRENT);
     if (res < 0) return res;
 
     // Set charge voltage in mV
-    res = smbus_write(CHARGER_ADDRESS, 0x15, CHARGER_CHARGE_VOLTAGE);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_VOLTAGE, CHARGER_CHARGE_VOLTAGE);
     if (res < 0) return res;
 
     // Set input current in mA
-    res = smbus_write(CHARGER_ADDRESS, 0x3F, CHARGER_INPUT_CURRENT);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, CHARGER_INPUT_CURRENT);
     if (res < 0) return res;
 
     // Set charge option 0 with watchdog disabled
@@ -92,15 +93,15 @@ void battery_event(void) {
         } \
     }
 
-    command(battery_temp, 0x08);
-    command(battery_voltage, 0x09);
-    command(battery_current, 0x0A);
-    command(battery_charge, 0x0D);
-    command(battery_remaining_capacity, 0x0F);
-    command(battery_full_capacity, 0x10);
-    command(battery_status, 0x16);
-    command(battery_design_capacity, 0x18);
-    command(battery_design_voltage, 0x19);
+    command(battery_temp, SBS_BATTERY_TEMPERATURE);
+    command(battery_voltage, SBS_BATTERY_VOLTAGE);
+    command(battery_current, SBS_BATTERY_CURRENT);
+    command(battery_charge, SBS_BATTERY_RELATIVE_CHARGE);
+    command(battery_remaining_capacity, SBS_BATTERY_REMAINING_CAPACITY);
+    command(battery_full_capacity, SBS_BATTERY_FULL_CAPACITY);
+    command(battery_status, SBS_BATTERY_STATUS);
+    command(battery_design_capacity, SBS_BATTERY_DESIGN_CAPACITY);
+    command(battery_design_voltage, SBS_BATTERY_DESIGN_VOLTAGE);
 
     #undef command
 }
@@ -120,21 +121,22 @@ void battery_debug(void) {
     }
 
     DEBUG("Battery:\n");
-    command(Temperature, BATTERY_ADDRESS, 0x08);
-    command(Voltage, BATTERY_ADDRESS, 0x09);
-    command(Current, BATTERY_ADDRESS, 0x0A);
-    command(Charge, BATTERY_ADDRESS, 0x0D);
-    command(Status, BATTERY_ADDRESS, 0x16);
+    command(Temperature, BATTERY_ADDRESS, SBS_BATTERY_TEMPERATURE);
+    command(Voltage, BATTERY_ADDRESS, SBS_BATTERY_VOLTAGE);
+    command(Current, BATTERY_ADDRESS, SBS_BATTERY_CURRENT);
+    command(Charge, BATTERY_ADDRESS, SBS_BATTERY_RELATIVE_CHARGE);
+    command(Status, BATTERY_ADDRESS, SBS_BATTERY_STATUS);
+    command(Cycle, BATTERY_ADDRESS, SBS_BATTERY_CYCLE_COUNT);
 
     DEBUG("Charger:\n");
     command(ChargeOption0, CHARGER_ADDRESS, 0x12);
     command(ChargeOption1, CHARGER_ADDRESS, 0x3B);
     command(ChargeOption2, CHARGER_ADDRESS, 0x38);
     command(ChargeOption3, CHARGER_ADDRESS, 0x37);
-    command(ChargeCurrent, CHARGER_ADDRESS, 0x14);
-    command(ChargeVoltage, CHARGER_ADDRESS, 0x15);
+    command(ChargeCurrent, CHARGER_ADDRESS, SBS_CHARGER_CHARGING_CURRENT);
+    command(ChargeVoltage, CHARGER_ADDRESS, SBS_CHARGER_CHARGING_VOLTAGE);
     command(DishargeCurrent, CHARGER_ADDRESS, 0x39);
-    command(InputCurrent, CHARGER_ADDRESS, 0x3F);
+    command(InputCurrent, CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT);
     command(ProchotOption0, CHARGER_ADDRESS, 0x3C);
     command(ProchotOption1, CHARGER_ADDRESS, 0x3D);
     command(ProchotStatus, CHARGER_ADDRESS, 0x3A);
