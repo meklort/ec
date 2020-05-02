@@ -27,3 +27,11 @@ int smbus_read(uint8_t address, uint8_t command, uint16_t * data) {
 int smbus_write(uint8_t address, uint8_t command, uint16_t data) {
     return i2c_set(&I2C_SMBUS, address, command, (uint8_t *)&data, 2);
 }
+
+int smbus_read_bytes(uint8_t address, uint8_t command, char data[], uint8_t bytes) {
+    return i2c_get(&I2C_SMBUS, address, command, data, bytes);
+}
+
+int smbus_write_bytes(uint8_t address, uint8_t command, char data[], uint8_t bytes) {
+    return i2c_set(&I2C_SMBUS, address, command, data, bytes);
+}
