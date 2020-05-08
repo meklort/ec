@@ -66,13 +66,20 @@ uint8_t acpi_read(uint8_t addr) {
                 // AC adapter connected
                 data |= 1 << 0;
             }
-            // BAT0 always connected - TODO
-            data |= 1 << 2;
+            data |= battery_present ? (1 << 2) : 0;
             break;
 
-        ACPI_16(0x16, battery_design_capacity);
-        ACPI_16(0x1A, battery_full_capacity);
-        ACPI_16(0x22, battery_design_voltage);
+        ACPI_16(0x16, battery_design_capacity); /* BDC0: 0x16 - 0x17 */
+
+        /* Unused: 0x18 - 0x19 */
+
+        ACPI_16(0x1A, battery_full_capacity);   /* BFC0: 0x1A - 0x1B */
+
+        /* Unused: 0x1C - 0x1D */
+
+        ACPI_16(0x22, battery_design_voltage);  /* BDV0: 0x22 - 0x23 */
+
+        /* Unused: 0x24 - 0x25 */
 
         case 0x26:
             // If AC adapter connected
@@ -85,9 +92,39 @@ uint8_t acpi_read(uint8_t addr) {
             }
             break;
 
-        ACPI_16(0x2A, battery_current);
-        ACPI_16(0x2E, battery_remaining_capacity);
-        ACPI_16(0x32, battery_voltage);
+        /* Unused: 0x27 - 0x29 */
+
+        ACPI_16(0x2A, battery_current);             /* BPR0? */
+
+        /* Unused: 0x2C - 0x2D */
+
+        ACPI_16(0x2E, battery_remaining_capacity);  /* BRC0: */
+
+        /* Unused: 0x30 - 0x31 */
+
+        ACPI_16(0x32, battery_voltage);             /* BPV0 */
+
+        /* Unused: 0x34 - 0x35 */
+
+        ACPI_16(0x36, battery_temp);                /* BTP0 */
+
+        ACPI_8(0x4E, battery_device.str[0]);        /* BMO0 */
+        ACPI_8(0x4F, battery_device.str[1]);
+        ACPI_8(0x50, battery_device.str[2]);
+        ACPI_8(0x51, battery_device.str[3]);
+        ACPI_8(0x52, battery_device.str[4]);
+        ACPI_8(0x53, battery_device.str[5]);
+        ACPI_8(0x54, battery_device.str[6]);
+        ACPI_8(0x55, battery_device.str[7]);
+
+        ACPI_16(0x5E, battery_serial);              /* BSN0 */
+
+        ACPI_8(0x62, battery_type.str[0]);          /* BTY0 */
+        ACPI_8(0x63, battery_type.str[1]);
+        ACPI_8(0x64, battery_type.str[2]);
+        ACPI_8(0x65, battery_type.str[3]);
+
+        /* Unused: 0x66 - 0x67 */
 
         ACPI_8(0x68, ecos);
 
