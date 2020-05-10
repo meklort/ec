@@ -187,6 +187,7 @@ typedef struct {
 extern uint8_t sci_extra;
 
 uint8_t ecos = 0;
+uint8_t ignore_backlight;
 
 static uint8_t fcmd = 0;
 static uint8_t fdat = 0;
@@ -199,7 +200,16 @@ void fcommand(void) {
             switch (fdat) {
                 // Set white LED brightness
                 case 0x00:
-                    kbled_set(fbuf[0]);
+                    if(!ignore_backlight)
+                    {
+                        kbled_set(fbuf[0]);
+                    }
+                    else
+                    {
+                        // First backlight setting ignored.
+                        ignore_backlight--;
+                    }
+
                     break;
                 // Get white LED brightness
                 case 0x01:
@@ -355,6 +365,7 @@ void acpi_write(uint8_t addr, uint8_t data) {
             break;
 
         case 0x68:
+            ignore_backlight = 2;
             ecos = data;
             break;
 
