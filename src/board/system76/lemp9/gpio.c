@@ -1,41 +1,41 @@
 #include <board/gpio.h>
 #include <common/debug.h>
 
-struct Gpio __code ACIN_N =         GPIO(B, 0);
-struct Gpio __code AC_PRESENT =     GPIO(E, 1);
-struct Gpio __code ALL_SYS_PWRGD =  GPIO(C, 0);
-struct Gpio __code BKL_EN =         GPIO(H, 2);
-struct Gpio __code BT_EN =          GPIO(F, 3);
-struct Gpio __code BUF_PLT_RST_N =  GPIO(D, 2);
-struct Gpio __code CCD_EN =         GPIO(D, 1);
-struct Gpio __code DD_ON =          GPIO(E, 4);
-struct Gpio __code EC_EN =          GPIO(J, 6);
-struct Gpio __code EC_RSMRST_N =    GPIO(E, 5);
-struct Gpio __code EC_SMD_EN_N =    GPIO(I, 6);
-struct Gpio __code LED_ACIN =       GPIO(C, 7);
-struct Gpio __code LED_PWR =        GPIO(D, 0);
-struct Gpio __code LID_SW_N =       GPIO(B, 1);
-struct Gpio __code PCH_DPWROK_EC =  GPIO(A, 7);
-struct Gpio __code PCH_PWROK_EC =   GPIO(A, 6);
-struct Gpio __code PM_CLKRUN_N =    GPIO(H, 0);
-struct Gpio __code PM_PWROK =       GPIO(C, 6);
-struct Gpio __code PWR_BTN_N =      GPIO(D, 5);
-struct Gpio __code PWR_SW_N =       GPIO(B, 3);
-struct Gpio __code SB_KBCRST_N =    GPIO(E, 6);
-struct Gpio __code SCI_N =          GPIO(D, 3);
-struct Gpio __code SLP_SUS_N =      GPIO(J, 3);
-struct Gpio __code SMI_N =          GPIO(D, 4);
-struct Gpio __code SUSB_N_PCH =     GPIO(H, 6);
-struct Gpio __code SUSC_N_PCH =     GPIO(H, 1);
-struct Gpio __code SUSWARN_N =      GPIO(D, 7);
-struct Gpio __code SUS_PWR_ACK =    GPIO(J, 7);
-struct Gpio __code SWI_N =          GPIO(B, 5);
-struct Gpio __code USB_PWR_EN_N =   GPIO(E, 3);
-struct Gpio __code VA_EC_EN =       GPIO(J, 4);
-struct Gpio __code VR_ON =          GPIO(H, 4);
+struct Gpio __code ACIN_N =         GPIO(B, 0); /* Input */
+struct Gpio __code AC_PRESENT =     GPIO(E, 1); /* Input */
+struct Gpio __code ALL_SYS_PWRGD =  GPIO(C, 0); /* Input */
+struct Gpio __code BKL_EN =         GPIO(H, 2); /* Output */
+struct Gpio __code BT_EN =          GPIO(F, 3); /* Output */
+struct Gpio __code BUF_PLT_RST_N =  GPIO(D, 2); /* Input */
+struct Gpio __code CCD_EN =         GPIO(D, 1); /* Output */
+struct Gpio __code DD_ON =          GPIO(E, 4); /* Output */
+struct Gpio __code EC_EN =          GPIO(J, 6); /* Output */
+struct Gpio __code EC_RSMRST_N =    GPIO(E, 5); /* Output */
+struct Gpio __code EC_SMD_EN_N =    GPIO(I, 6); /* Output */
+struct Gpio __code LED_ACIN =       GPIO(C, 7); /* Output */
+struct Gpio __code LED_PWR =        GPIO(D, 0); /* Output */
+struct Gpio __code LID_SW_N =       GPIO(B, 1); /* Input */
+struct Gpio __code PCH_DPWROK_EC =  GPIO(A, 7); /* Output */
+struct Gpio __code PCH_PWROK_EC =   GPIO(A, 6); /* Output */
+struct Gpio __code PM_CLKRUN_N =    GPIO(H, 0); /* Output */
+struct Gpio __code PM_PWROK =       GPIO(C, 6); /* Output */
+struct Gpio __code PWR_BTN_N =      GPIO(D, 5); /* Output */
+struct Gpio __code PWR_SW_N =       GPIO(B, 3); /* Input */
+struct Gpio __code SB_KBCRST_N =    GPIO(E, 6); /* Output */
+struct Gpio __code SCI_N =          GPIO(D, 3); /* Output */
+struct Gpio __code SLP_SUS_N =      GPIO(J, 3); /* Input */
+struct Gpio __code SMI_N =          GPIO(D, 4); /* Output */
+struct Gpio __code SUSB_N_PCH =     GPIO(H, 6); /* Input */
+struct Gpio __code SUSC_N_PCH =     GPIO(H, 1); /* Input */
+struct Gpio __code SUSWARN_N =      GPIO(D, 7); /* Input */
+struct Gpio __code SUS_PWR_ACK =    GPIO(J, 7); /* OUtput */
+struct Gpio __code SWI_N =          GPIO(B, 5); /* Output */
+struct Gpio __code USB_PWR_EN_N =   GPIO(E, 3); /* Output */
+struct Gpio __code VA_EC_EN =       GPIO(J, 4); /* Output */
+struct Gpio __code VR_ON =          GPIO(H, 4); /* Output */
 struct Gpio __code WLAN_EN =        GPIO(G, 1);
-struct Gpio __code WLAN_PWR_EN =    GPIO(A, 3);
-struct Gpio __code XLP_OUT =        GPIO(B, 4);
+struct Gpio __code WLAN_PWR_EN =    GPIO(A, 3); /* Output */
+struct Gpio __code XLP_OUT =        GPIO(B, 4); /* Output */
 
 void gpio_init() {
     // Enable LPC reset on GPD2
@@ -67,9 +67,9 @@ void gpio_init() {
     // WLAN_PWR_EN
     GPCRA3 = GPIO_OUT;
     // NC
-    GPCRA4 = GPIO_IN;
+    GPCRA4 = GPIO_OUT;
     // NC
-    GPCRA5 = GPIO_IN;
+    GPCRA5 = GPIO_OUT;
     // PCH_PWROK_EC
     GPCRA6 = GPIO_OUT;
     // PCH_DPWROK_EC
@@ -87,9 +87,9 @@ void gpio_init() {
     // SWI#
     GPCRB5 = GPIO_OUT;
     // NC
-    GPCRB6 = GPIO_IN;
+    GPCRB6 = GPIO_OUT;
     // NC
-    GPCRB7 = GPIO_IN;
+    GPCRB7 = GPIO_OUT;
     // ALL_SYS_PWRGD
     GPCRC0 = GPIO_IN;
     // SMB_CLK_EC
@@ -101,7 +101,7 @@ void gpio_init() {
     // CNVI_DET#
     GPCRC4 = GPIO_IN | GPIO_UP;
     // NC
-    GPCRC5 = GPIO_IN;
+    GPCRC5 = GPIO_OUT;
     // PM_PWROK
     GPCRC6 = GPIO_OUT;
     // LED_ACIN
@@ -179,13 +179,13 @@ void gpio_init() {
     // EC_GPIO
     GPCRH3 = GPIO_OUT;
     // VR_ON
-    GPCRH4 = GPIO_IN;
+    GPCRH4 = GPIO_IN | GPIO_UP;
     // SINK_CTRL_EC
     GPCRH5 = GPIO_IN;
     // SUSB#_PCH
     GPCRH6 = GPIO_IN;
     // NC
-    GPCRH7 = GPIO_IN;
+    GPCRH7 = GPIO_OUT;
     // BAT_DET
     GPCRI0 = GPIO_ALT;
     // BAT_VOLT
@@ -197,7 +197,7 @@ void gpio_init() {
     // TOTAL_CUR
     GPCRI4 = GPIO_ALT;
     // NC
-    GPCRI5 = GPIO_IN;
+    GPCRI5 = GPIO_OUT;
     // EC_SMD_EN#
     GPCRI6 = GPIO_IN;
     // MODEL_ID
