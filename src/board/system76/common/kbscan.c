@@ -22,6 +22,18 @@ config_t kbscan_cfg_fnlock = {
     .set_callback = NULL,
 };
 
+config_t kbscan_cfg_debounce = {
+    .config_id = {'K', 'D' , 'B' ,'T'},
+    .config_short = "Keyboard Debounce Time",
+    .config_desc = "Debounce time in milliseconds",
+    .value = {
+        .min_value = 1,
+        .max_value = 1000,
+        .value = 15 /* Default to 15ms */
+    },
+    .set_callback = NULL,
+};
+
 bool kbscan_enabled = false;
 uint16_t kbscan_repeat_period = 91;
 uint16_t kbscan_repeat_delay = 500;
@@ -46,11 +58,9 @@ void kbscan_init(void) {
     KSIGOEN = 0;
     KSIGDAT = 0;
 
+    config_register(&kbscan_cfg_debounce);
     config_register(&kbscan_cfg_fnlock);
 }
-
-// Debounce time in milliseconds
-#define DEBOUNCE_DELAY 15
 
 static uint8_t kbscan_get_row(int i) {
     // Set current line as output
@@ -247,7 +257,7 @@ void kbscan_event(void) {
     // If debounce complete
     if (debounce) {
         uint32_t time = time_get();
-        if ((time - debounce_time) >= DEBOUNCE_DELAY) {
+        if ((time - debounce_time) >= kbscan_cfg_debounce.value.value) {
             // Finish debounce
             debounce = false;
         }
