@@ -25,6 +25,9 @@ pub enum Cmd {
     FanGet = 7,
     FanSet = 8,
 
+    BatGetInfo = 9,
+    BatGetStatus = 10,
+
     ConfigGetName = 32,
     ConfigGetDesc = 33,
     ConfigGetValue = 34,
@@ -54,6 +57,90 @@ impl fmt::Display for Value {
         writeln!(f, "Min: {}", self.min)?;
         writeln!(f, "Max: {}", self.max)?;
         writeln!(f, "Current Value: {}", self.value)?;
+
+        Ok(())
+    }
+}
+
+pub struct BatInfo {
+    design_capacity: u16,
+    full_capacity: u16,
+    design_voltage: u16,
+    cycle_count: u16,
+    model_number: [char; 32],
+    serial_number: [char; 32],
+    battery_type: [char; 32],
+    manufacturer: [char; 32],
+}
+
+impl fmt::Display for BatInfo {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let power = (self.design_capacity as f32 / 1000.0) * (self.design_voltage as f32 / 1000.0);
+        let power_full = (self.full_capacity as f32 / 1000.0) * (self.design_voltage as f32 / 1000.0);
+        writeln!(f, "Design Voltage: {}v", (self.design_voltage as f32 / 1000.0))?;
+        writeln!(f, "Design Capacity: {}A ({}W)", (self.design_capacity as f32 / 1000.0), power)?;
+        writeln!(f, "Full Capacity: {}A ({}W)", (self.full_capacity as f32 / 1000.0), power_full)?;
+        writeln!(f, "Cycle Count: {}", self.cycle_count)?;
+        write!(f, "Manufacturer: ")?;
+        for c in &self.manufacturer {
+            if '\0' == *c
+            {
+                break;
+            }
+            write!(f, "{}", c)?;
+        }
+        writeln!(f, "")?;
+
+        write!(f, "Model: ")?;
+        for c in &self.model_number {
+            if '\0' == *c
+            {
+                break;
+            }
+            write!(f, "{}", c)?;
+        }
+        writeln!(f, "")?;
+
+        write!(f, "Type: ")?;
+        for c in &self.battery_type {
+            if '\0' == *c
+            {
+                break;
+            }
+            write!(f, "{}", c)?;
+        }
+        writeln!(f, "")?;
+
+        write!(f, "Serial: ")?;
+        for c in &self.serial_number {
+            if '\0' == *c
+            {
+                break;
+            }
+            write!(f, "{}", c)?;
+        }
+        writeln!(f, "")?;
+
+        Ok(())
+    }
+}
+
+pub struct BatStatus {
+    temperature: u16,
+    voltage: u16,
+    current: i16,
+    charge: u16,
+}
+
+impl fmt::Display for BatStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let power = (self.voltage as f32 / 1000.0) * (self.current as f32 / 1000.0);
+        let temp_f = (self.temperature as f32 / 100.0) * 1.8 + 32.0;
+        writeln!(f, "Temperature: {}C ({}F)", (self.temperature as f32 / 100.0), temp_f)?;
+        writeln!(f, "Voltage: {}V", (self.voltage as f32 / 1000.0))?;
+        writeln!(f, "Current: {}A", (self.current as f32 / 1000.0))?;
+        writeln!(f, "Power: {}W", power)?;
+        writeln!(f, "Charge: {}%", self.charge)?;
 
         Ok(())
     }
@@ -116,7 +203,14 @@ impl<T: Timeout> Ec<T> {
         (Pio::<u8>::new(
             self.cmd + (addr as u16) + 3
         ).read() as u32) << 24
+    }
 
+    pub unsafe fn read_str(&mut self, addr: u8) -> [char; 32] {
+        let mut data: [char; 32] = { ['\0';32] };
+        for i in 0..32 {
+            data[i] = self.read(i as u8 + addr) as char;
+        }
+        return data;
     }
 
     /// Write to the command space
@@ -334,6 +428,33 @@ impl<T: Timeout> Ec<T> {
         Ok(())
     }
 
+    pub unsafe fn bat_get_info(&mut self) -> Result<BatInfo, Error> {
+        self.command(Cmd::BatGetInfo)?;
+        let info = BatInfo {
+            cycle_count: self.read16(2),
+            design_capacity: self.read16(4),
+            full_capacity: self.read16(6),
+            design_voltage: self.read16(8),
+            battery_type: self.read_str(10),
+            manufacturer: self.read_str(42),
+            model_number: self.read_str(74),
+            serial_number: self.read_str(106),
+        };
+
+        return Ok(info);
+    }
+
+    pub unsafe fn bat_get_status(&mut self) -> Result<BatStatus, Error> {
+        self.command(Cmd::BatGetStatus)?;
+        let info = BatStatus {
+            temperature: self.read16(2),
+            voltage: self.read16(4),
+            current: self.read16(6) as i16,
+            charge: self.read16(8),
+        };
+
+        return Ok(info);
+    }
 }
 
 pub struct EcSpi<'a, T: Timeout> {

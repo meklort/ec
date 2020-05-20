@@ -11,11 +11,12 @@ CFLAGS+=-DI2C_SMBUS=I2C_4
 CFLAGS+=-DPS2_TOUCHPAD=PS2_3
 
 # Set smart charger parameters
-#TODO: Find out why input current must by divided by two
+# Input sense resistor requires a multiplier of 2 to achieve a 1:1 mapping
 CFLAGS+=\
-	-DCHARGER_CHARGE_CURRENT=1536 \
+	-DCHARGER_CHARGE_CURRENT=3314 \
 	-DCHARGER_CHARGE_VOLTAGE=8800 \
-	-DCHARGER_INPUT_CURRENT=1600
+	-DCHARGER_INPUT_CURRENT=3200 \
+	-DCHARGER_INPUT_MULT=2
 
 # Add system76 common code
 include src/board/system76/common/common.mk

@@ -388,6 +388,32 @@ unsafe fn config_compact() -> Result<(), Error> {
     ec.config_compact()
 }
 
+unsafe fn bat_get_info() -> Result<(), Error> {
+    iopl();
+
+    let mut ec = Ec::new(
+        StdTimeout::new(Duration::new(1, 0)),
+    )?;
+
+    let info = ec.bat_get_info()?;
+    println!("{}", info);
+
+    Ok(())
+}
+
+unsafe fn bat_get_status() -> Result<(), Error> {
+    iopl();
+
+    let mut ec = Ec::new(
+        StdTimeout::new(Duration::new(1, 0)),
+    )?;
+
+    let info = ec.bat_get_status()?;
+    println!("{}", info);
+
+    Ok(())
+}
+
 fn usage() {
     eprintln!("  console");
     eprintln!("  flash [file]");
@@ -395,6 +421,8 @@ fn usage() {
     eprintln!("  fan [index] <duty>");
     eprintln!("  config [name] [value]");
     eprintln!("  config_compact");
+    eprintln!("  bat_info");
+    eprintln!("  bat_status");
     eprintln!("  info");
     eprintln!("  print [message]");
 }
@@ -527,6 +555,22 @@ fn main() {
                         process::exit(1);
                     },
                 }
+            },
+
+
+            "bat_info" => match unsafe { bat_get_info() } {
+                Ok(()) => (),
+                Err(err) => {
+                    eprintln!("failed to read battery info: {:X?}", err);
+                    process::exit(1);
+                },
+            },
+            "bat_status" => match unsafe { bat_get_status() } {
+                Ok(()) => (),
+                Err(err) => {
+                    eprintln!("failed to read battery info: {:X?}", err);
+                    process::exit(1);
+                },
             },
 
 

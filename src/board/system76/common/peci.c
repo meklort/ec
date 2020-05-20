@@ -11,7 +11,7 @@
 #ifdef BOARD_HEATUP
     #define HEATUP BOARD_HEATUP
 #else
-    #define HEATUP 10
+    #define HEATUP 5
 #endif
 
 // Fan speed is the highest HEATUP speed over COOLDOWN seconds
@@ -22,7 +22,7 @@
 #endif
 
 // Interpolate duty cycle
-#define INTERPOLATE 0
+#define INTERPOLATE 1
 
 // Tjunction = 100C for i7-8565U (and probably the same for all WHL-U)
 #define T_JUNCTION 100
@@ -46,6 +46,7 @@ static struct FanPoint __code FAN_POINTS[] = {
 #ifdef BOARD_FAN_POINTS
     BOARD_FAN_POINTS
 #else
+    FAN_POINT(60, 30),
     FAN_POINT(70, 40),
     FAN_POINT(75, 50),
     FAN_POINT(80, 60),

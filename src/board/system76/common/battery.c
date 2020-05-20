@@ -1,8 +1,13 @@
+#include <board/battery.h>
 #include <board/smbus.h>
 #include <common/debug.h>
 
 #define BATTERY_ADDRESS 0x0B
 #define CHARGER_ADDRESS 0x09
+
+#ifndef CHARGER_INPUT_MULT
+#define CHARGER_INPUT_MULT 1 /* 1:1 mapping from input current register to reality */
+#endif
 
 // ChargeOption0 flags
 // Low Power Mode Enable
@@ -36,7 +41,7 @@ int battery_charger_disable(void) {
     if (res < 0) return res;
 
     // Disable input current
-    res = smbus_write(CHARGER_ADDRESS, 0x3F, 0);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, 0);
     if (res < 0) return res;
 
     return 0;
@@ -57,7 +62,7 @@ int battery_charger_enable(void) {
     if (res < 0) return res;
 
     // Set input current in mA
-    res = smbus_write(CHARGER_ADDRESS, 0x3F, CHARGER_INPUT_CURRENT);
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, CHARGER_INPUT_CURRENT / CHARGER_INPUT_MULT);
     if (res < 0) return res;
 
     // Set charge option 0 with watchdog disabled
@@ -72,7 +77,7 @@ int battery_charger_enable(void) {
     return 0;
 }
 
-uint16_t battery_temp = 0;
+uint16_t battery_temp = 0; // <--
 uint16_t battery_voltage = 0;
 uint16_t battery_current = 0;
 uint16_t battery_charge = 0;
@@ -188,7 +193,7 @@ void battery_debug(void) {
     command(ChargeCurrent, CHARGER_ADDRESS, 0x14);
     command(ChargeVoltage, CHARGER_ADDRESS, 0x15);
     command(DishargeCurrent, CHARGER_ADDRESS, 0x39);
-    command(InputCurrent, CHARGER_ADDRESS, 0x3F);
+    command(InputCurrent, CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT);
     command(ProchotOption0, CHARGER_ADDRESS, 0x3C);
     command(ProchotOption1, CHARGER_ADDRESS, 0x3D);
     command(ProchotStatus, CHARGER_ADDRESS, 0x3A);

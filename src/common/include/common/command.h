@@ -21,6 +21,11 @@ enum Command {
     // Set fan speeds
     CMD_FAN_SET = 8,
 
+    // Get Battery Information,
+    CMD_BAT_GET_INFO = 9,
+    // Get Battery Status,
+    CMD_BAT_GET_STAT = 10,
+
     // Get Config by name from index.
     CMD_GET_CONFIG_NAME = 32,
     // Get configuration descrption from index.

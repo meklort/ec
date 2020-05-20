@@ -6,6 +6,7 @@
     #include <board/scratch.h>
 #endif
 #include <board/smfi.h>
+#include <board/battery.h>
 #include <common/command.h>
 #include <common/macro.h>
 #include <common/version.h>
@@ -144,6 +145,45 @@ static enum Result cmd_reset(void) {
 }
 
 #ifndef __SCRATCH__
+static enum Result cmd_bat_get_info(void) {
+    smfi_cmd[2] = battery_cycle_count;
+    smfi_cmd[3] = battery_cycle_count >> 8;
+
+    smfi_cmd[4] = battery_design_capacity;
+    smfi_cmd[5] = battery_design_capacity >> 8;
+
+    smfi_cmd[6] = battery_full_capacity;
+    smfi_cmd[7] = battery_full_capacity >> 8;
+
+    smfi_cmd[8] = battery_design_voltage;
+    smfi_cmd[9] = battery_design_voltage >> 8;
+
+    memcpy(&smfi_cmd[10], battery_type.str, battery_type.len + 1);
+    memcpy(&smfi_cmd[42], battery_manufacturer.str, battery_manufacturer.len + 1);
+    memcpy(&smfi_cmd[74], battery_device.str, battery_device.len + 1);
+
+    sprintf(&smfi_cmd[106], "%04X", battery_serial);
+
+    return RES_OK;
+}
+
+static enum Result cmd_bat_get_status(void) {
+    smfi_cmd[2] = battery_temp;
+    smfi_cmd[3] = battery_temp >> 8;
+
+    smfi_cmd[4] = battery_voltage;
+    smfi_cmd[5] = battery_voltage >> 8;
+
+    smfi_cmd[6] = battery_current;
+    smfi_cmd[7] = battery_current >> 8;
+
+    smfi_cmd[8] = battery_charge;
+    smfi_cmd[9] = battery_charge >> 8;
+
+    return RES_OK;
+}
+
+
 static enum Result cmd_fan_get(void) {
     switch (smfi_cmd[2]) {
         case 0:
@@ -280,6 +320,14 @@ void smfi_event(void) {
                 break;
             case CMD_FAN_SET:
                 smfi_cmd[1] = cmd_fan_set();
+                break;
+
+            /* Battery related commands */
+            case CMD_BAT_GET_INFO:
+                smfi_cmd[1] = cmd_bat_get_info();
+                break;
+            case CMD_BAT_GET_STAT:
+                smfi_cmd[1] = cmd_bat_get_status();
                 break;
 
             /* Config related commands */

@@ -10,6 +10,180 @@
 #define HAVE_LED_AIRPLANE_N 1
 #endif // HAVE_LED_AIRPLANE_N
 
+typedef struct {
+    uint8_t NMSG;
+	uint8_t SLED:4;
+	// Offset (0x02),
+	uint8_t MODE:1;
+	uint8_t FAN0:1;
+	uint8_t TME0:1;
+	uint8_t TME1:1;
+	uint8_t FAN1:1;
+    uint8_t rsvd_2:2;
+	// Offset (0x03),
+	uint8_t LSTE:1;
+	uint8_t LSW0:1;
+	uint8_t LWKE:1;
+	uint8_t WAKF:1;
+	uint8_t rsvd_3:2;
+	uint8_t PWKE:1;
+	uint8_t MWKE:1;
+
+	uint8_t AC0;
+	uint8_t PSV;
+	uint8_t CRT;
+	uint8_t TMP;
+	uint8_t AC1;
+	uint8_t BBST;
+	// Offset (0x0B),
+	// Offset (0x0C),
+	// Offset (0x0D),
+	// Offset (0x0E),
+	uint8_t SLPT;
+	uint8_t SWEJ:1;
+	uint8_t SWCH:1;
+
+	// Offset (0x10),
+	uint8_t ADP:1; /* 0x10 <- Adapter Present */
+	uint8_t AFLT:1;
+	uint8_t BAT0:1; /* 0x10 <- BAT0 Present */
+	uint8_t BAT1:1; /* 0x10 <- BAT1 Present */
+    uint8_t resv_16:3;
+	uint8_t PWOF:1;
+	uint8_t WFNO;   // 0x11
+	uint32_t BPU0;  // 0x12
+	uint32_t BDC0;  // 0x16 <- Battery Desing Capacity
+	uint32_t BFC0;  // 0x1a <- Battery Full Capacity
+	uint32_t BTC0;  // 0x1e <- Battery Total Capacity
+	uint32_t BDV0;  // 0x22 <- Battery Design Voltage
+	uint32_t BST0;  // 0x26 <- Battery Status
+	uint32_t BPR0;  // 0x2a <- Battery Present Current ??
+	uint32_t BRC0;  // 0x2e <- Battery Remaining Capacity
+	uint32_t BPV0;  // 0x32 <- Battery Present Voltage
+	uint16_t BTP0;  // 0x36 <- Battery Temeprature
+	uint16_t BRS0;  // 0x3a
+	uint32_t BCW0;  // 0x3e
+	uint32_t BCL0;  // 0x42
+	uint32_t BCG0;  // 0x46 <- Battery Capacity Granularity
+	uint32_t BG20;  // 0x4a <- Battery Capacity Granularity 2
+	uint64_t BMO0;  // 0x4e <- Battery Model[8]
+	uint64_t BIF0;  // 0x56 <-
+	uint32_t BSN0;  // 0x5e <- Battery Serial Number
+	uint64_t BTY0;  // 0x62 <- Battery Type[8] (LION)
+	// Offset (0x67),
+	// Offset (0x68),
+	// uint8_t ECOS,
+	// uint8_t LNXD,   8,
+	// uint8_t ECPS,   8,
+	// Offset (0x6C),
+	// uint16_t BTMP,
+	// uint8_t EVTN
+	// Offset (0x72),
+	// uint8_t PRCL,
+	// uint8_t PRC0,
+	// uint8_t PRC1,
+	// uint8_t PRCM,
+	// uint8_t PRIN,
+	// uint8_t PSTE,
+	// uint8_t PCAD,
+	// uint8_t PEWL,
+	// uint8_t PWRL,
+	// uint8_t PECD,
+	// uint8_t PEHI,
+	// uint8_t PECI,
+	// uint8_t PEPL,
+	// uint8_t PEPM,
+	// uint8_t PWFC,
+	// uint8_t PECC,
+	// uint8_t PDT0,
+	// uint8_t PDT1,
+	// uint8_t PDT2,
+	// uint8_t PDT3,
+	// uint8_t PRFC,
+	// uint8_t PRS0,
+	// uint8_t PRS1,
+	// uint8_t PRS2,
+	// uint8_t PRS3,
+	// uint8_t PRS4,
+	// uint8_t PRCS,
+	// uint8_t PEC0,
+	// uint8_t PEC1,
+	// uint8_t PEC2,
+	// uint8_t PEC3,
+	// uint8_t CMDR,
+	// uint8_t CVRT,
+	// uint8_t GTVR,
+	// uint8_t FANT,
+	// uint8_t SKNT,
+	// uint8_t AMBT,
+	// uint8_t MCRT,
+	// uint8_t DIM0,
+	// uint8_t DIM1,
+	// uint8_t PMAX,
+	// uint8_t PPDT,
+	// uint8_t PECH,
+	// uint8_t PMDT,
+	// uint8_t TSD0,
+	// uint8_t TSD1,
+	// uint8_t TSD2,
+	// uint8_t TSD3,
+	// uint16_t CPUP,
+	// uint16_t MCHP,
+	// uint16_t SYSP,
+	// uint16_t CPAP,
+	// uint16_t MCAP,
+	// uint16_t SYAP,
+	// uint16_t CFSP,
+	// uint16_t CPUE,
+	// Offset (0xC6),
+	// Offset (0xC7),
+	// VGAT,   8,
+	// OEM1,   8,
+	// OEM2,   8,
+	// OEM3,   16,
+	// OEM4,   8,
+	// Offset (0xCE),
+	// DUT1,   8,
+	// DUT2,   8,
+	// RPM1,   16,
+	// RPM2,   16,
+	// RPM4,   16,
+	// Offset (0xD7),
+	// DTHL,   8,
+	// DTBP,   8,
+	// AIRP,   8,
+	// WINF,   8,
+	// RINF,   8,
+	// Offset (0xDD),
+	// INF2,   8,
+	// MUTE,   1,
+	// Offset (0xE0),
+	// RPM3,   16,
+	// ECKS,   8,
+	// Offset (0xE4),
+	// 	,   4,
+	// XTUF,   1,
+	// EP12,   1,
+	// Offset (0xE5),
+	// INF3,   8,
+	// Offset (0xE7),
+	// GFOF,   8,
+	// Offset (0xE9),
+	// KPCR,   1,
+	// Offset (0xEA),
+	// Offset (0xF0),
+	// PL1T,   16,
+	// PL2T,   16,
+	// TAUT,   8,
+	// Offset (0xF8),
+	// FCMD,   8,
+	// FDAT,   8,
+	// FBUF,   8,
+	// FBF1,   8,
+	// FBF2,   8,
+	// FBF3,   8
+} acpi_ram_t;
+
 extern uint8_t sci_extra;
 
 uint8_t ecos = 0;
