@@ -89,7 +89,7 @@ void main(void) {
 
     INFO("System76 EC board '%s', version '%s'\n", board(), version());
 
-    battery_init_information();
+    battery_init();
 
     uint32_t last_time = 0;
     for(main_cycle = 0; ; main_cycle++) {

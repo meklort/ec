@@ -370,7 +370,7 @@ void power_event(void) {
             battery_charger_disable();
         } else {
             DEBUG("plugged in\n");
-            battery_charger_enable();
+            battery_event();
         }
         battery_debug();
 

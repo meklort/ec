@@ -1,5 +1,7 @@
 #include <board/battery.h>
+#include <board/gpio.h>
 #include <board/smbus.h>
+#include <common/config.h>
 #include <common/debug.h>
 
 #define BATTERY_ADDRESS 0x0B
@@ -19,65 +21,33 @@
 // IDCHG Amplifier Gain
 #define SBC_IDCHC_GAIN      ((uint16_t)(1 << 3))
 
-int battery_charger_disable(void) {
-    int res = 0;
+config_t battery_cfg_charger_start = {
+    .config_id = {'B', 'S', 'T', 'A'},
+    .config_short = "Battery Charge Start Threshold",
+    .config_desc = "Charging is enabled when the battery drops below this level",
+    .value = {
+        .min_value = 60,
+        .max_value = 100,
+        .value = 100 /* Default value */
+    },
+    .set_callback = NULL,
+};
 
-    // Set charge option 0 with 175s watchdog
-    res = smbus_write(
-        CHARGER_ADDRESS,
-        0x12,
-        SBC_EN_LWPWR |
-        SBC_WDTMR_ADJ_175S |
-        SBC_PWM_FREQ_800KHZ |
-        SBC_IDCHC_GAIN
-    );
+config_t battery_cfg_charger_stop = {
+    .config_id = {'B', 'S', 'T', 'O'},
+    .config_short = "Battery Charge Stop Threshold",
+    .config_desc = "Charging is disabled when the batter is greater or equal to this value",
+    .value = {
+        .min_value = 80,
+        .max_value = 100,
+        .value = 100 /* Default value */
+    },
+    .set_callback = NULL,
+};
 
-    // Disable charge current
-    res = smbus_write(CHARGER_ADDRESS, 0x14, 0);
-    if (res < 0) return res;
 
-    // Disable charge voltage
-    res = smbus_write(CHARGER_ADDRESS, 0x15, 0);
-    if (res < 0) return res;
-
-    // Disable input current
-    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, 0);
-    if (res < 0) return res;
-
-    return 0;
-}
-
-int battery_charger_enable(void) {
-    int res = 0;
-
-    res = battery_charger_disable();
-    if (res < 0) return res;
-
-    // Set charge current in mA
-    res = smbus_write(CHARGER_ADDRESS, 0x14, CHARGER_CHARGE_CURRENT);
-    if (res < 0) return res;
-
-    // Set charge voltage in mV
-    res = smbus_write(CHARGER_ADDRESS, 0x15, CHARGER_CHARGE_VOLTAGE);
-    if (res < 0) return res;
-
-    // Set input current in mA
-    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, CHARGER_INPUT_CURRENT / CHARGER_INPUT_MULT);
-    if (res < 0) return res;
-
-    // Set charge option 0 with watchdog disabled
-    res = smbus_write(
-        CHARGER_ADDRESS,
-        0x12,
-        SBC_EN_LWPWR |
-        SBC_PWM_FREQ_800KHZ |
-        SBC_IDCHC_GAIN
-    );
-
-    return 0;
-}
-
-uint16_t battery_temp = 0; // <--
+bool battery_charger_enabled = false;
+uint16_t battery_temp = 0;
 uint16_t battery_voltage = 0;
 uint16_t battery_current = 0;
 uint16_t battery_charge = 0;
@@ -93,6 +63,69 @@ sbs_string_t battery_device = { 0 };
 sbs_string_t battery_type = { 0 };
 uint16_t battery_cycle_count = 0;
 bool battery_present = false;
+
+int battery_charger_disable(void) {
+    int res = 0;
+
+    // Set charge option 0 with 175s watchdog
+    res = smbus_write(
+        CHARGER_ADDRESS,
+        SBS_CHARGER_MODE,
+        SBC_EN_LWPWR |
+        SBC_WDTMR_ADJ_175S |
+        SBC_PWM_FREQ_800KHZ |
+        SBC_IDCHC_GAIN
+    );
+
+    // Disable charge current
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_CURRENT, 0);
+    if (res < 0) return res;
+
+    // Disable charge voltage
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_VOLTAGE, 0);
+    if (res < 0) return res;
+
+    // Disable input current
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, 0);
+    if (res < 0) return res;
+
+    DEBUG("Charger disabled.\n");
+    battery_charger_enabled = false;
+    return 0;
+}
+
+int battery_charger_enable(void) {
+    int res = 0;
+
+    res = battery_charger_disable();
+    if (res < 0) return res;
+
+    // Set charge current in mA
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_CURRENT, CHARGER_CHARGE_CURRENT);
+    if (res < 0) return res;
+
+    // Set charge voltage in mV
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_CHARGING_VOLTAGE, CHARGER_CHARGE_VOLTAGE);
+    if (res < 0) return res;
+
+    // Set input current in mA
+    res = smbus_write(CHARGER_ADDRESS, SBS_CHARGER_INPUT_CURRENT, CHARGER_INPUT_CURRENT / CHARGER_INPUT_MULT);
+    if (res < 0) return res;
+
+    // Set charge option 0 with watchdog disabled
+    res = smbus_write(
+        CHARGER_ADDRESS,
+        SBS_CHARGER_MODE,
+        SBC_EN_LWPWR |
+        SBC_PWM_FREQ_800KHZ |
+        SBC_IDCHC_GAIN
+    );
+
+    DEBUG("Charger enabled.\n");
+    battery_charger_enabled = true;
+
+    return 0;
+}
 
 void battery_read_string(sbs_string_t *str, uint8_t address)
 {
@@ -111,6 +144,14 @@ void battery_read_string(sbs_string_t *str, uint8_t address)
         // Invalid length.
         str->str[0] = 0;
     }
+}
+
+void battery_init(void)
+{
+    config_register(&battery_cfg_charger_start);
+    config_register(&battery_cfg_charger_stop);
+
+    battery_init_information();
 }
 
 void battery_init_information(void)
@@ -160,6 +201,20 @@ void battery_event(void) {
     command(battery_temp, SBS_BATTERY_TEMPERATURE);
     command(battery_remaining_capacity, SBS_BATTERY_REMAINING_CAPACITY);
     command(battery_cycle_count, SBS_BATTERY_CYCLE_COUNT);
+
+    // If we are below the start level, ensure the charger is enabled.
+    bool on_bat = gpio_get(&ACIN_N);
+    if(!on_bat) {
+        if (battery_charge < battery_cfg_charger_start.value.value) {
+            if (!battery_charger_enabled) {
+                battery_charger_enable();
+            }
+        } else if (battery_charge >= battery_cfg_charger_stop.value.value) {
+            if (battery_charger_enabled) {
+                battery_charger_disable();
+            }
+        }
+    }
 
     #undef command
 }

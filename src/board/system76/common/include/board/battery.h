@@ -81,6 +81,7 @@ extern sbs_string_t battery_device;
 extern sbs_string_t battery_type;
 extern uint16_t battery_cycle_count;
 extern bool battery_present;
+extern bool battery_charger_enabled;
 
 
 int battery_charger_disable(void);
@@ -88,6 +89,7 @@ int battery_charger_enable(void);
 void battery_event(void);
 void battery_debug(void);
 
+void battery_init(void);
 void battery_init_information(void);
 
 #endif // _BOARD_BATTERY_H
