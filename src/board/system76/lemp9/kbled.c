@@ -1,4 +1,5 @@
 #include <board/kbled.h>
+#include <common/config.h>
 #include <common/macro.h>
 #include <ec/dac.h>
 
@@ -14,14 +15,34 @@ static uint8_t __code levels[] = {
     0xFF
 };
 
+void kbled_set_cfg(config_t* cfg);
+
+config_t kbled_cfg_start_value = {
+    .config_id = {'K', 'B', 'B', 'L'},
+    .config_short = "Keyboard Backlight Level",
+    .config_desc = "Power-on keyboard backlight level",
+    .value = {
+        .min_value = 0,
+        .max_value = ARRAY_SIZE(levels) - 1,
+        .value = 0 /* Default value */
+    },
+    .set_callback = &kbled_set_cfg,
+};
+
 void kbled_init(void) {
+    config_register(&kbled_cfg_start_value);
+
     // Enable DAC used for KBLIGHT_ADJ
     DACPDREG &= ~(1 << KBLED_DAC);
     kbled_reset();
 }
 
 void kbled_reset(void) {
-    kbled_set(0);
+    kbled_set(kbled_cfg_start_value.value.value);
+}
+
+void kbled_set_cfg(config_t* cfg) {
+    kbled_set(cfg->value.value);
 }
 
 uint8_t kbled_get(void) {
