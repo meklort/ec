@@ -298,6 +298,11 @@ void smfi_event(void) {
             case CMD_SET_CONFIG_VALUE:
                 smfi_cmd[1] = cmd_config_set_value_by_index();
                 break;
+            case CMD_COMPACT_CONFIG:
+                config_save_entries();
+                smfi_cmd[1] = RES_OK;
+                break;
+
 
 #endif // __SCRATCH__
             default:
